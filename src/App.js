@@ -7,22 +7,23 @@ function App() {
 const [meals, setMeals] = useState([]);
 const [text, setText] = useState('');
 const [otherCategories, setOtherCategories] = useState([]);
-const [categoriesMeals, setCategoriesMeals] = useState([]);
 const [filterMeals, setFilterMeals] = useState([]);
 const [delivery, setDelivery] = useState("");
 const [sort, setSort] = useState("");
 const [categories, setCategories] = useState([]);
 const [title, setTitle] =  useState("All meals");
+const [rating, setRating] =  useState([]);
+const [otherRating, setOtherRating] =  useState([]);
 
 useEffect(() => {
     const { meals } = data
     console.log("ok to request");
     setFilterMeals(meals);
-    setCategoriesMeals(meals);
     setMeals(meals);
   }, []);
 
 const handleDelivery = (e) => {
+    setRating("");
     setText("");
     setSort("");
     setCategories([]);
@@ -40,6 +41,7 @@ const handleDelivery = (e) => {
 };
 
 const handleSort = (e) => {
+    setRating("");
     setDelivery("");
     setText("");
     setCategories([]);
@@ -50,7 +52,7 @@ const handleSort = (e) => {
         localSort =  meals.filter(meal => meal.recommended)
     } 
     if(e.target.value === '15') {
-        localSort =  meals.filter(meal => meal.discount <= 15)
+        localSort =  meals.filter(meal => meal.discount >= 15)
     }
     if(e.target.value === 'All Offers') {
         localSort =  meals.filter(meal => meal.offer)
@@ -65,10 +67,10 @@ const handleSort = (e) => {
         localSort =   meals.filter(meal => meal.near)
     }
     setFilterMeals(localSort)
-    console.log(e.target.value)
 };
 
 const handleCategories = (e) => {
+    setRating("");
     setDelivery("");
     setText("");
     setSort("");
@@ -97,6 +99,7 @@ useEffect(() => {
  }, [meals, text]);
 
 const handleSearch = (e) => {
+    setRating("");
     setDelivery("");
     setSort("");
     setCategories([]);
@@ -106,12 +109,42 @@ const handleSearch = (e) => {
 
 useEffect(() => {
     if(otherCategories.length) {
-        setFilterMeals([...categoriesMeals.filter(meal => otherCategories.includes(meal.category))])
+        setFilterMeals([...meals.filter(meal => otherCategories.includes(meal.category))])
     }else {
-        setFilterMeals([...categoriesMeals])
+        setFilterMeals([...meals])
     }
     // console.log('Do something after counter has changed', otherCategories);
- }, [otherCategories, categoriesMeals]);
+ }, [otherCategories, meals]);
+
+ const handleRating = (e) => {
+    // console.log(e.target.value)
+    setDelivery("");
+    setText("");
+    setSort("");
+    setTitle("");
+    setCategories([]);
+    let localRating = [...rating];
+    if (localRating.find(rating => rating === e.target.value) !== undefined) {
+        // eslint-disable-next-line no-const-assign
+        localRating = localRating.filter(rating => rating !== e.target.value)
+        
+      }else{
+        // eslint-disable-next-line no-const-assign
+        localRating = [...rating, e.target.value]
+    }
+    setRating([...localRating])
+    setOtherRating([...localRating])
+};
+
+useEffect(() => {
+    if(otherRating.length) {
+        setFilterMeals([...meals.filter(meal => 
+            otherRating.some(element => parseInt(element) <= meal.rating
+        ))])}else {
+        setFilterMeals([...meals])
+    }
+    // console.log('Do something after counter has changed', otherCategories);
+ }, [otherRating, meals]);
 
   return (
     <div className="App">
@@ -122,7 +155,7 @@ useEffect(() => {
             <div className="row">
               <div className="col-xl-8 col-lg-7 col-md-7 d-none d-md-block">
                   <h1>145 restaurants in Convent Street 2983</h1>
-                  <a href="#0">Change address</a>
+                  <a href="!#">Change address</a>
               </div>
               <div className="col-xl-4 col-lg-5 col-md-5">
                 <div className="search_bar_list">
@@ -155,10 +188,10 @@ useEffect(() => {
               </ul>
             </div>
           
-            <a href="#0" className="open_filters btn_filters"><i className="icon_adjust-vert"></i><span>Filters</span></a>
+            <a href="!#" className="open_filters btn_filters"><i className="icon_adjust-vert"></i><span>Filters</span></a>
           
             <div className="filter_col">
-              <div className="inner_bt clearfix">Filters<a href="#" className="open_filters"><i className="icon_close"></i></a></div>
+              <div className="inner_bt clearfix">Filters<a href="!#" className="open_filters"><i className="icon_close"></i></a></div>
               <div className="filter_type">
                 <h4><a href="#filter_1" data-toggle="collapse" className="opened">Sort</a></h4>
                 <div className="collapse show" id="filter_1">
@@ -273,25 +306,33 @@ useEffect(() => {
                   <ul>
                       <li>
                           <label className="container_check">Superb 9+ <small>06</small>
-                              <input type="checkbox" />
+                              <input type="checkbox" value={9} checked={rating.includes('9')}
+                              onClick={handleRating}
+                              onChange={e => e.stopPropagation()}/>
                               <span className="checkmark"></span>
                           </label>
                       </li>
                       <li>
                           <label className="container_check">Very Good 8+ <small>12</small>
-                              <input type="checkbox" />
+                              <input type="checkbox"  value={8} checked={rating.includes('8')}
+                              onClick={handleRating}
+                              onChange={e => e.stopPropagation()}/>
                               <span className="checkmark"></span>
                           </label>
                       </li>
                       <li>
                           <label className="container_check">Good 7+ <small>17</small>
-                              <input type="checkbox" />
+                              <input type="checkbox"  value={7} checked={rating.includes('7')}
+                              onClick={handleRating}
+                              onChange={e => e.stopPropagation()}/>
                               <span className="checkmark"></span>
                           </label>
                       </li>
                       <li>
                           <label className="container_check">Pleasant 6+ <small>43</small>
-                              <input type="checkbox" />
+                              <input type="checkbox" value={6} checked={rating.includes('6')}
+                              onClick={handleRating}
+                              onChange={e => e.stopPropagation()}/>
                               <span className="checkmark"></span>
                           </label>
                       </li>
@@ -299,96 +340,96 @@ useEffect(() => {
                 </div>
               </div>
 
-              {/*<p><a href="#0" className="btn_1 outline full-width">Filter</a></p>*/}.
+              {/*<p><a href="!#" className="btn_1 outline full-width">Filter</a></p>*/}.
             </div>
           </aside>
 
-          <div class="col-lg-9">
-          <div class="row">
-              <div class="col-12">
-                  <h2 class="title_small">Top Categories</h2>
-                  <div class="owl-carousel owl-theme categories_carousel_in listing">
-                      <div class="item">
+          <div className="col-lg-9">
+          <div className="row">
+              <div className="col-12">
+                  <h2 className="title_small">Top Categories</h2>
+                  <div className="owl-carousel owl-theme categories_carousel_in listing">
+                      <div className="item">
                           <figure>
-                              <img src={"img/cat_listing_placeholder.png"} data-src="img/cat_listing_1.jpg" alt="" class="owl-lazy" />
-                              <a href="#0"><h3>Pizza</h3></a>
+                              <img src={"img/cat_listing_placeholder.png"} data-src="img/cat_listing_1.jpg" alt="" className="owl-lazy" />
+                              <a href="!#"><h3>Pizza</h3></a>
                           </figure>
                       </div>
-                      <div class="item">
+                      <div className="item">
                           <figure>
-                              <img src="img/cat_listing_placeholder.png" data-src="img/cat_listing_2.jpg" alt="" class="owl-lazy" />
-                              <a href="#0"><h3>Sushi</h3></a>
+                              <img src="img/cat_listing_placeholder.png" data-src="img/cat_listing_2.jpg" alt="" className="owl-lazy" />
+                              <a href="!#"><h3>Sushi</h3></a>
                           </figure>
                       </div>
-                      <div class="item">
+                      <div className="item">
                           <figure>
-                              <img src="img/cat_listing_placeholder.png" data-src="img/cat_listing_3.jpg" alt="" class="owl-lazy" />
-                              <a href="#0"><h3>Dessert</h3></a>
+                              <img src="img/cat_listing_placeholder.png" data-src="img/cat_listing_3.jpg" alt="" className="owl-lazy" />
+                              <a href="!#"><h3>Dessert</h3></a>
                           </figure>
                       </div>
-                      <div class="item">
+                      <div className="item">
                           <figure>
-                              <img src="img/cat_listing_placeholder.png" data-src="img/cat_listing_4.jpg" alt="" class="owl-lazy" />
-                              <a href="#0"><h3>Hamburgher</h3></a>
+                              <img src="img/cat_listing_placeholder.png" data-src="img/cat_listing_4.jpg" alt="" className="owl-lazy" />
+                              <a href="!#"><h3>Hamburgher</h3></a>
                           </figure>
                       </div>
-                      <div class="item">
+                      <div className="item">
                           <figure>
-                              <img src="img/cat_listing_placeholder.png" data-src="img/cat_listing_5.jpg" alt="" class="owl-lazy" />
-                              <a href="#0"><h3>Ice Cream</h3></a>
+                              <img src="img/cat_listing_placeholder.png" data-src="img/cat_listing_5.jpg" alt="" className="owl-lazy" />
+                              <a href="!#"><h3>Ice Cream</h3></a>
                           </figure>
                       </div>
-                      <div class="item">
+                      <div className="item">
                           <figure>
-                              <img src="img/cat_listing_placeholder.png" data-src="img/cat_listing_6.jpg" alt="" class="owl-lazy" />
-                              <a href="#0"><h3>Kebab</h3></a>
+                              <img src="img/cat_listing_placeholder.png" data-src="img/cat_listing_6.jpg" alt="" className="owl-lazy" />
+                              <a href="!#"><h3>Kebab</h3></a>
                           </figure>
                       </div>
-                      <div class="item">
+                      <div className="item">
                           <figure>
-                              <img src="img/cat_listing_placeholder.png" data-src="img/cat_listing_7.jpg" alt="" class="owl-lazy" />
-                              <a href="#0"><h3>Italian</h3></a>
+                              <img src="img/cat_listing_placeholder.png" data-src="img/cat_listing_7.jpg" alt="" className="owl-lazy" />
+                              <a href="!#"><h3>Italian</h3></a>
                           </figure>
                       </div>
-                      <div class="item">
+                      <div className="item">
                           <figure>
-                              <img src={"img/cat_listing_placeholder.png"} data-src="img/cat_listing_8.jpg" alt="" class="owl-lazy" />
-                              <a href="#0"><h3>Chinese</h3></a>
+                              <img src={"img/cat_listing_placeholder.png"} data-src="img/cat_listing_8.jpg" alt="" className="owl-lazy" />
+                              <a href="!#"><h3>Chinese</h3></a>
                           </figure>
                       </div>	
                   </div>
 
 
 
-          <div class="promo">
+          <div className="promo">
               <h3>Free Delivery for your first 14 days!</h3>
               <p>Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip.</p>
-              <i class="icon-food_icon_delivery"></i>
+              <i className="icon-food_icon_delivery"></i>
           </div>
           
-          <div class="row">
+          <div className="row">
 
-              <div class="col-12"><h2 class="title_small">{['Pizza - Italian', 'Japanese - Sushi', 'Burghers', 'Vegetarian', 'Bakery', 'Chinese', 'Mexican'].includes(title) ? "Categories" : title}</h2></div>
+              <div className="col-12"><h2 className="title_small">{['Pizza - Italian', 'Japanese - Sushi', 'Burghers', 'Vegetarian', 'Bakery', 'Chinese', 'Mexican'].includes(title) ? "Categories" : title}</h2></div>
               {filterMeals?.map((meal) => (
                 <>
-              <div class="col-xl-4 col-lg-6 col-md-6 col-sm-6">
-                  <div class="strip">
+              <div className="col-xl-4 col-lg-6 col-md-6 col-sm-6">
+                  <div className="strip">
                       <figure>
-                          <span class="ribbon off">15% off</span>
-                          <img src={"img/lazy-placeholder.png"} data-src="img/location_1.jpg" class="img-fluid lazy" alt="" />
-                          <a href="detail-restaurant.html" class="strip_info">
+                      {meal.discount >= 15 ? <span className="ribbon off">15% off</span> : null }
+                          <img src={"img/lazy-placeholder.png"} data-src="img/location_1.jpg" className="img-fluid lazy" alt="" />
+                          <a href="detail-restaurant.html" className="strip_info">
                               <small>{meal.category}</small>
-                              <div class="item_title">
+                              <div className="item_title">
                                   <h3>{meal.name}</h3>
                                   <small>{meal.location}</small>
                               </div>
                           </a>
                       </figure>
                       <ul>
-                          <li><span class="take yes">Takeaway</span> <span class="deliv yes">Delivery</span></li>
-                          <li>
-                              <div class="score"><strong>{meal.rating}</strong></div>
-                          </li>
+                        <li><span className={"take " + (meal.takeaway ? 'yes' : 'no')}>Takeaway</span> <span className={"deliv " + (meal.delivery ? 'yes' : 'no')}>Delivery</span></li>
+                        <li>
+                            <div className="score"><strong>{meal.rating}</strong></div>
+                        </li>
                       </ul>
                   </div>
               </div>
